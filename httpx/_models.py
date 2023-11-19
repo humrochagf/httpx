@@ -758,6 +758,8 @@ class Response:
         raise HTTPStatusError(message, request=request, response=self)
 
     def json(self, **kwargs: typing.Any) -> typing.Any:
+        if self.charset_encoding:
+            return jsonlib.loads(self.content.decode(self.encoding), **kwargs)
         return jsonlib.loads(self.content, **kwargs)
 
     @property

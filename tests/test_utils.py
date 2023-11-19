@@ -39,6 +39,22 @@ def test_encoded(encoding):
     assert response.json() == {"abc": 123}
 
 
+@pytest.mark.parametrize(
+    ("encoding", "value"),
+    (
+        ("iso-8859-1", "àáâãäåæ"),
+        ("iso-2022-jp", "あいうえお"),
+    ),
+)
+def test_encoded_non_utf(encoding, value):
+    content = f'{{"value": "{value}"}}'.encode(encoding)
+    content_type = f"application/json; charset={encoding}"
+    response = httpx.Response(
+        200, content=content, headers={"Content-Type": content_type}
+    )
+    assert response.json()["value"] == value
+
+
 def test_bad_utf_like_encoding():
     content = b"\x00\x00\x00\x00"
     response = httpx.Response(200, content=content)
